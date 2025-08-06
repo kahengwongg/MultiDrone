@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import time
 from multi_drone import MultiDrone
 
 
@@ -9,6 +10,7 @@ class Node:
         self.configuration = configuration
         self.father = father
 def rrt_motion_planning(sim):
+    start_time = time.time()
     # initialize the setting
     initial_configuration = sim.initial_configuration
     goal_positions = sim.goal_positions
@@ -48,7 +50,7 @@ def rrt_motion_planning(sim):
             if sim.is_valid(end) and sim.motion_valid(start, end):
                 new_node = Node(end, nearest_node)
                 break
-
+        end_time = None
         if new_node is not None:
             tree.append(new_node)
             if sim.is_goal(new_node.configuration):
@@ -56,12 +58,19 @@ def rrt_motion_planning(sim):
                 while node:
                     path.append(node.configuration)
                     node = node.father
-                return path.reverse()
-    return None
-
-sim = MultiDrone(num_drones=2, environment_file="environment.yaml")
-path = rrt_motion_planning(sim)
-
-sim.visualize_paths(path)
+                    end_time = time.time()
+                return path.reverse(), end_time - start_time
+    end_time = time.time()
+    return None, end_time - start_time
+def run_rrt(environment_file, num_drones):
+    sim = MultiDrone(num_drones=num_drones, environment_file=environment_file)
+    path, time = rrt_motion_planning(sim)
+    if path is not None:
+        print("Path found")
+        sim.visualize_paths(path)
+    else:
+        print("Path not found")
+    print("Use time: " + time)
+    return path, time, path is not None
 
 
