@@ -1,4 +1,6 @@
 import math
+import random
+
 import numpy as np
 import time
 from multi_drone import MultiDrone
@@ -12,7 +14,7 @@ class Node:
 def rrt_motion_planning(sim):
     start_time = time.time()
     # initialize the setting
-    initial_configuration = sim.initial_configuration
+    initial_configuration = np.array(sim.initial_configuration, dtype=np.float32)
     goal_positions = sim.goal_positions
 
     # build a list to store all nodes
@@ -23,12 +25,20 @@ def rrt_motion_planning(sim):
     low = [0,0,0]
     high = [50,50,50]
 
+    l = [-10,-10,-10]
+    h = [10,10,10]
+
     iter = 0
     max_iterations = 1000
     D = 15 # pick a suitable number as d
     path = []
     while iter < max_iterations:
-        sample_config = np.random.uniform(low, high, size=(m,3)).astype(dtype=np.float32)
+        sample_config = None
+        if random.random() < 0.5:
+            increment = np.random.uniform(h, l, size=(m,3)).astype(dtype=np.float32)
+            sample_config = np.array(goal_positions, dtype=np.float32)+increment
+        else:
+            sample_config = np.random.uniform(low, high, size=(m,3)).astype(dtype=np.float32)
         min_dist = math.inf
         nearest_node = None
 
@@ -50,7 +60,6 @@ def rrt_motion_planning(sim):
             if sim.is_valid(end) and sim.motion_valid(start, end):
                 new_node = Node(end, nearest_node)
                 break
-        end_time = None
         if new_node is not None:
             tree.append(new_node)
             if sim.is_goal(new_node.configuration):
@@ -58,8 +67,9 @@ def rrt_motion_planning(sim):
                 while node:
                     path.append(node.configuration)
                     node = node.father
-                    end_time = time.time()
-                return path.reverse(), end_time - start_time
+                end_time = time.time()
+                return reversed(path), end_time - start_time
+        iter += 1
     end_time = time.time()
     return None, end_time - start_time
 def run_rrt(environment_file, num_drones):
@@ -70,7 +80,7 @@ def run_rrt(environment_file, num_drones):
         sim.visualize_paths(path)
     else:
         print("Path not found")
-    print("Use time: " + time)
+    print("Use time: ", time)
     return path, time, path is not None
 
 
