@@ -11,21 +11,21 @@ obstacles:
     size: [4, 4, 2] # The side lengths of the box-shaped obstacle
     rotation: [0, 0, 0]  # Euler angles in degrees
     color: red
+
+  - type: sphere
+    position: [15, 15, 16]
+    radius: 2.5 # The radius of the sphere in meters
+    color: red
     
   - type: cylinder
-    endpoints: [[15, 10, 0], [15, 10, 15]] # The 3D endpoints of the cylinder
+    endpoints: [[30, 3, 10], [30, 3, 30]] # The 3D endpoints of the cylinder
     radius: 2.5 # The radius of the cylinder in meters
     rotation: [0, 0, 0]
     color: red
 
-  - type: sphere
-    position: [5, 10, 2]
-    radius: 2.0 # The radius of the sphere in meters
-    color: red
-
   - type: box
-    position: [18, 10, 1] # The 3D position of the obstacle in the environment
-    size: [4, 4, 2] # The side lengths of the box-shaped obstacle
+    position: [8, 32, 32] # The 3D position of the obstacle in the environment
+    size: [10, 5, 5] # The side lengths of the box-shaped obstacle
     rotation: [0, 0, 0]  # Euler angles in degrees
     color: red
 

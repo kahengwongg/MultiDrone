@@ -25,18 +25,14 @@ def rrt_motion_planning(sim):
     low = [0,0,0]
     high = [50,50,50]
 
-    l = [-10,-10,-10]
-    h = [10,10,10]
-
     iter = 0
-    max_iterations = 1000
-    D = 15 # pick a suitable number as d
+    max_iterations = 5000
+    D = [2, 1.5, 1, 0.5]
     path = []
     while iter < max_iterations:
         sample_config = None
-        if random.random() < 0.5:
-            increment = np.random.uniform(h, l, size=(m,3)).astype(dtype=np.float32)
-            sample_config = np.array(goal_positions, dtype=np.float32)+increment
+        if random.random() < 0.2:
+            sample_config = np.array(goal_positions, dtype=np.float32)
         else:
             sample_config = np.random.uniform(low, high, size=(m,3)).astype(dtype=np.float32)
         min_dist = math.inf
@@ -54,7 +50,7 @@ def rrt_motion_planning(sim):
 
         # find the valid node: less than D, valid config, collision-free motion
         new_node = None
-        for d in range(D, 0, -1):
+        for d in D:
             start = nearest_node.configuration
             end = start+d*unit_direction
             if sim.is_valid(end) and sim.motion_valid(start, end):
@@ -68,7 +64,7 @@ def rrt_motion_planning(sim):
                     path.append(node.configuration)
                     node = node.father
                 end_time = time.time()
-                return reversed(path), end_time - start_time
+                return list(reversed(path)), end_time - start_time
         iter += 1
     end_time = time.time()
     return None, end_time - start_time
@@ -77,10 +73,8 @@ def run_rrt(environment_file, num_drones):
     path, time = rrt_motion_planning(sim)
     if path is not None:
         print("Path found")
-        sim.visualize_paths(path)
     else:
         print("Path not found")
-    print("Use time: ", time)
     return path, time, path is not None
 
 
